@@ -1,5 +1,3 @@
-//import fs from 'fs';
-import matter from 'gray-matter';
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
 import remarkRehype from 'remark-rehype';
@@ -14,17 +12,12 @@ import rehypeParse from 'rehype-parse';
 import rehypeReact from 'rehype-react';
 import { loadPosts } from '../../utils/index';
 export async function getStaticProps({ params }) {
-    console.log(`Building slug: ${params.slug}`)
-    //console.log("paramsValueIs: ", params);
     const posts = await loadPosts();
     const file = posts.filter((v) => {
         return v.metadata.slug === params.slug;
     })
-    //const file = fs.readFileSync(`posts/${params.slug}.md`, 'utf-8');
     const metadata = file[0].metadata;
-    console.log(metadata);
     const content = file[0].content;
-    //console.log(content);
     const result = await unified()
         .use(remarkParse)
         .use(remarkPrism, {
@@ -38,20 +31,16 @@ export async function getStaticProps({ params }) {
         .use(rehypeSlug)
         .use(rehypeStringify)
         .process(content);
-    //console.log("metadata: ", metadata);
     return { props: { frontMatter: metadata, content: result.toString() } };
 }
 
 export const getStaticPaths = async() => {
     const posts = await loadPosts();
-    //console.log(posts);
-    // const files = fs.readdirSync('posts');
     const paths = posts.map((posts) => ({
         params: {
             slug: posts.metadata.slug,
         },
     }));
-    //console.log('paths:', paths);
     return {
         paths,
         fallback: false,
